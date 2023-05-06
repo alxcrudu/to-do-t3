@@ -10,6 +10,7 @@ import Navbar from "~/components/Navbar";
 const Home: NextPage = () => {
   const [newTask, setNewTask] = useState("");
   const [editing, setEditing] = useState({ newTitle: "", selectedId: "" });
+  const [error, setError] = useState<string | null>(null);
   const { data: sessionData } = useSession();
 
   const { data: tasks, refetch: refetchTasks } = API.TaskRouter.getAll.useQuery(
@@ -50,6 +51,7 @@ const Home: NextPage = () => {
               <form
                 className="flex gap-1 w-full lg:w-[45em]"
                 onSubmit={(e) => {
+                  if(newTask.length < 1) setError('Please input your task before submitting!')
                   e.preventDefault();
                   addTask.mutate({
                     title: newTask,
@@ -62,7 +64,10 @@ const Home: NextPage = () => {
                   placeholder="Add new task"
                   className="input-bordered input w-full"
                   value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
+                  onChange={(e) => {
+                    if(newTask.trim() != "") setError(null)
+                    setNewTask(e.target.value)
+                  }}
                 />
                 <input
                   className="btn-primary btn border-none font-light normal-case shadow-xl"
@@ -71,6 +76,7 @@ const Home: NextPage = () => {
                 />
               </form>
             </div>
+            <div className="w-full lg:w-[45em] grid place-items-center text-red-600 mt-2">{error}</div>
             <div className="mt-12 flex flex-col items-center gap-6 mb-12">
               {tasks?.map((task, i) => (
                 <div
@@ -109,7 +115,10 @@ const Home: NextPage = () => {
                     ) : (
                       <>
                         <p
-                          className={`text-primary-content ${
+                          onClick={() =>
+                            editTask.mutate({ id: task.id, done: !task.done })
+                          }
+                          className={`text-primary-content cursor-pointer ${
                             task.done ? "line-through opacity-60" : ""
                           }`}
                         >
