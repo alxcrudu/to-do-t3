@@ -36,6 +36,8 @@ const Home: NextPage = () => {
     },
   });
 
+  console.log('test')
+
   return (
     <>
       <Head>
